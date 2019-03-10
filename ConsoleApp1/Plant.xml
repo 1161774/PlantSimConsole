@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<plant>
+  <pump name="PMP9601">
+    <input  name="Run"        address="E01R1S7_EPWW.Data.0" />
+    <input  name="Stop"       address="E01R1S7_EPWW.Data.1" />
+    <input  name="Reset"      address="E01R1S7_EPWW.Data.2" />
+    <output name="Available"  address="E01R1S1_EPWW.Data.0" />
+    <output name="Running"    address="E01R1S1_EPWW.Data.1" />
+    <output name="Fault"      address="E01R1S1_EPWW.Data.2" />
+    <output name="ResetPB"    address="E01R1S1_EPWW.Data.3" />
+    <output name="StartPB"    address="E01R1S1_EPWW.Data.4" />
+    <output name="StopPB"     address="E01R1S1_EPWW.Data.5" />
+    <output name="Auto"       address="E01R1S1_EPWW.Data.6" />
+    <output name="Manual"     address="E01R1S1_EPWW.Data.7" />
+  </pump>
+  <pump name="PMP9602">
+    <input  name="Run"        address="E01R1S7_EPWW.Data.4" />
+    <input  name="Stop"       address="E01R1S7_EPWW.Data.5" />
+    <input  name="Reset"      address="E01R1S7_EPWW.Data.6" />
+    <output name="Available"  address="E01R1S2_EPWW.Data.0" />
+    <output name="Running"    address="E01R1S2_EPWW.Data.1" />
+    <output name="Fault"      address="E01R1S2_EPWW.Data.2" />
+    <output name="ResetPB"    address="E01R1S2_EPWW.Data.3" />
+    <output name="StartPB"    address="E01R1S2_EPWW.Data.4" />
+    <output name="StopPB"     address="E01R1S2_EPWW.Data.5" />
+    <output name="Auto"       address="E01R1S2_EPWW.Data.6" />
+    <output name="Manual"     address="E01R1S2_EPWW.Data.7" />
+  </pump>
+  <storage name="MyPond1">
+    <input  name="Run"        address="E01R1S7_EPWW.Data.4" />
+    <input  name="Stop"       address="E01R1S7_EPWW.Data.5" />
+    <input  name="Reset"      address="E01R1S7_EPWW.Data.6" />
+    <output name="Available"  address="E01R1S2_EPWW.Data.0" />
+    <output name="Running"    address="E01R1S2_EPWW.Data.1" />
+    <output name="Fault"      address="E01R1S2_EPWW.Data.2" />
+    <output name="ResetPB"    address="E01R1S2_EPWW.Data.3" />
+    <output name="StartPB"    address="E01R1S2_EPWW.Data.4" />
+    <output name="StopPB"     address="E01R1S2_EPWW.Data.5" />
+    <output name="Auto"       address="E01R1S2_EPWW.Data.6" />
+    <output name="Manual"     address="E01R1S2_EPWW.Data.7" />
+  </storage>
+
+</plant>
