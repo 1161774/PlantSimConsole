@@ -19,7 +19,7 @@ namespace ConsoleApp1
 
         private double value;
 
-        protected FieldIO(string name, string address)
+        public FieldIO(string name, string address)
         {
             this.name = name;
             this.address = address;

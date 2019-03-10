@@ -4,49 +4,86 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NDde.Client;
+using System.Timers;
 
 namespace ConsoleApp1
 {
     class Program
     {
+
+        static Dictionary<string, string> FieldInputs = new Dictionary<string, string>();
+
+        public static readonly object FieldInputsLock = new object();
+
+
         static void Main(string[] args)
         {
-
-            DdeClient dde = new DdeClient("RSLinx", "PlantSim");
-
-            Console.Write("Connecting...");
-            dde.TryConnect();
-
-            if (dde.IsConnected)
+            lock (FieldInputsLock)
             {
-                Console.WriteLine("Done");
-                Console.WriteLine("Start loop:");
+                FieldInputs.Add("TestRead1", "");
+                FieldInputs.Add("TestRead2", "");
+                FieldInputs.Add("TestRead3", "");
+                FieldInputs.Add("TestRead4", "");
+                FieldInputs.Add("TestRead5", "");
+            }
 
-
-                dde.Advise += Dde_Advise;
-
-                while (true)
+            try
+            {
+                using (DdeClient c = new DdeClient("RSLinx", "PlantSim"))
                 {
-                    try
-                    {
+                    c.Disconnected += C_Disconnected;
 
-                        var res = dde.Request("TestRead", 1000);
-                        Console.WriteLine(res.ToString());
-                    }
-                    catch(Exception ex)
+                    Console.Write("Connecting...");
+                    c.Connect();
+                    Console.WriteLine(" OK");
+
+                    Console.Write("Starting advisor...");
+                    c.Advise += C_Advise;
+                    Console.WriteLine(" OK");
+
+                    Console.Write("Adding vars...");
+
+                    // RSLinx seems to reject the first register request. Try it 3 times, if it still doesn't work then an issue.
+                    lock (FieldInputsLock)
                     {
-                        Console.WriteLine("Read Failed:");
-                        Console.WriteLine(ex.ToString());
+                        foreach (var item in FieldInputs.Keys)
+                        {
+                            try
+                            {
+                                c.StartAdvise(item, 1, true, 1000);
+                            }
+                            catch
+                            {
+                                try
+                                {
+                                    c.StartAdvise(item, 1, true, 1000);
+                                }
+                                catch
+                                {
+                                    //If this doesn't work, fall through to exception handler
+                                    c.StartAdvise(item, 1, true, 1000);
+                                }
+                            }
+                        }
                     }
 
+                    Console.WriteLine(" OK");
+
+                    Timer t = new Timer();
+                    t.Elapsed += T_Elapsed;
+                    t.Interval = 1000;
+                    t.AutoReset = true;
+                    t.Start();
+
+                    Console.ReadLine();
                 }
             }
-            else
+            catch(Exception e)
             {
-                Console.WriteLine("Fail");
+                Console.WriteLine(e.ToString());
+                Console.ReadKey();
             }
 
-            Console.ReadKey();
 
 /*            Pump PMP1001 = new Pump(
                 new List<FieldIO>
@@ -74,10 +111,30 @@ namespace ConsoleApp1
             );*/
         }
 
-        private static void Dde_Advise(object sender, DdeAdviseEventArgs e)
+        private static void T_Elapsed(object sender, ElapsedEventArgs e)
         {
+            lock (FieldInputsLock)
+            {
 
+                foreach (var i in FieldInputs)
+                {
+                    Console.WriteLine(i.Key + ": " + i.Value);
+                }
+            }
+        }
+
+        private static void C_Advise(object sender, DdeAdviseEventArgs e)
+        {
+            lock (FieldInputsLock)
+            {
+                FieldInputs[e.Item] = e.Text;
+            }
+        }
+
+        private static void C_Disconnected(object sender, DdeDisconnectedEventArgs e)
+        {
             throw new NotImplementedException();
         }
+
     }
 }
