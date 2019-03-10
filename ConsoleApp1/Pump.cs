@@ -29,6 +29,14 @@ namespace ConsoleApp1
             set { flowRate = FlowRate;}
         }
 
+        private double maxFlowRate;
+        public double MaxFlowRate
+        {
+            get { return maxFlowRate; }
+            set { maxFlowRate = MaxFlowRate; }
+        }
+
+
         private double currentSpeed;
         public double CurrentSpeed
         {
@@ -36,7 +44,7 @@ namespace ConsoleApp1
         }
 
 
-        public Pump(List<FieldIO> inputs, List<FieldIO> outputs)
+        public Pump(List<KeyValuePair<string, string>> inputs, List<KeyValuePair<string, string>> outputs)
         {
             
         }

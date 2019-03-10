@@ -13,14 +13,20 @@ namespace ConsoleApp1
     {
 
         static Dictionary<string, string> FieldInputs = new Dictionary<string, string>();
-
         public static readonly object FieldInputsLock = new object();
 
+        static List<Pump> Pumps = new List<Pump>();
 
         static void Main(string[] args)
         {
 
             XDocument doc = XDocument.Load(".\\Plant.xml");
+
+
+            var pumps = doc.Root
+                    .Elements("pump")
+                    .Select(x => x)
+                    .ToList();
 
             var pumpInputs = doc.Root
                                 .Elements("pump")
@@ -29,98 +35,104 @@ namespace ConsoleApp1
                                 .Select(x => x.Value)
                                 .ToList();
 
+            foreach(var pump in pumps)
+            {
+
+                var pumpName = pump.Name.LocalName;
+
+                List<KeyValuePair<string, string>> inputs = new List<KeyValuePair<string, string>>();
+                var ins = pump.Elements("input").Select(x => x).ToList();
+                foreach(var i in ins)
+                {
+                    inputs.Add(new KeyValuePair<string, string>(i.Attribute("name").Value, i.Attribute("address").Value));
+                }
+
+                List<KeyValuePair<string, string>> outputs = new List<KeyValuePair<string, string>>();
+                var outs = pump.Elements("output").Select(x => x).ToList();
+                foreach (var i in outs)
+                {
+                    outputs.Add(new KeyValuePair<string, string>(i.Attribute("name").Value, i.Attribute("address").Value));
+                }
+
+                double maxFlowRate;
+                double.TryParse(pump.Attribute("maxFlowRate").Value, out maxFlowRate);
+
+                Pump p = new Pump(inputs, outputs);
+                p.MaxFlowRate = maxFlowRate;
+
+
+
+                Pumps.Add(p);
+
+            }
+
+
             lock (FieldInputsLock)
             {
-                foreach(var i in pumpInputs)
+                foreach (var i in pumpInputs)
                 {
                     FieldInputs.Add(i, null);
                 }
-                //FieldInputs.Add("TestRead4", "");
-                //FieldInputs.Add("TestRead5", "");
             }
 
-                        try
+            try
+            {
+                using (DdeClient c = new DdeClient("RSLinx", "PlantSim"))
+                {
+                    c.Disconnected += C_Disconnected;
+
+                    Console.Write("Connecting...");
+                    c.Connect();
+                    Console.WriteLine(" OK");
+
+                    Console.Write("Starting advisor...");
+                    c.Advise += C_Advise;
+                    Console.WriteLine(" OK");
+
+                    Console.Write("Adding vars...");
+
+                    // RSLinx seems to reject the first register request. Try it 3 times, if it still doesn't work then an issue.
+                    lock (FieldInputsLock)
+                    {
+                        foreach (var item in FieldInputs.Keys)
                         {
-                            using (DdeClient c = new DdeClient("RSLinx", "PlantSim"))
+                            try
                             {
-                                c.Disconnected += C_Disconnected;
-
-                                Console.Write("Connecting...");
-                                c.Connect();
-                                Console.WriteLine(" OK");
-
-                                Console.Write("Starting advisor...");
-                                c.Advise += C_Advise;
-                                Console.WriteLine(" OK");
-
-                                Console.Write("Adding vars...");
-
-                                // RSLinx seems to reject the first register request. Try it 3 times, if it still doesn't work then an issue.
-                                lock (FieldInputsLock)
+                                c.StartAdvise(item, 1, true, 1000);
+                            }
+                            catch
+                            {
+                                try
                                 {
-                                    foreach (var item in FieldInputs.Keys)
-                                    {
-                                        try
-                                        {
-                                            c.StartAdvise(item, 1, true, 1000);
-                                        }
-                                        catch
-                                        {
-                                            try
-                                            {
-                                                c.StartAdvise(item, 1, true, 1000);
-                                            }
-                                            catch
-                                            {
-                                                //If this doesn't work, fall through to exception handler
-                                                c.StartAdvise(item, 1, true, 1000);
-                                            }
-                                        }
-                                    }
+                                    c.StartAdvise(item, 1, true, 1000);
                                 }
-
-                                Console.WriteLine(" OK");
-
-                                Timer t = new Timer();
-                                t.Elapsed += T_Elapsed;
-                                t.Interval = 1000;
-                                t.AutoReset = true;
-                                t.Start();
-
-                                Console.ReadLine();
-                            }
-                        }
-                        catch(Exception e)
-                        {
-                            Console.WriteLine(e.ToString());
-                            Console.ReadKey();
-                        }
-                        
-
-            /*            Pump PMP1001 = new Pump(
-                            new List<FieldIO>
-                            {
-                                new FieldIO() 
-                            },
-                            new List<FieldIO>
-                            {
-                                new FieldIO(){  name = "Running",
-                                                address = "E01R1S2CH0",
-                                                direction = FieldIO._direction.Output,
-                                                ioType = FieldIO._ioType.Digital
-                                },
-                                new FieldIO(){  name = "Faulted",
-                                                address = "E01R1S2CH1",
-                                                direction = FieldIO._direction.Output,
-                                                ioType = FieldIO._ioType.Digital
-                                },
-                                new FieldIO(){  name = "Speed",
-                                                address = "E01R1S3CH0",
-                                                direction = FieldIO._direction.Output,
-                                                ioType = FieldIO._ioType.Analog
+                                catch
+                                {
+                                    //If this doesn't work, fall through to exception handler
+                                    c.StartAdvise(item, 1, true, 1000);
                                 }
                             }
-                        );*/
+                        }
+                    }
+
+                    Console.WriteLine(" OK");
+
+                    Timer t = new Timer();
+                    t.Elapsed += T_Elapsed;
+                    t.Interval = 1000;
+                    t.AutoReset = true;
+                    t.Start();
+
+                    Console.ReadLine();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                Console.ReadKey();
+            }
+
+
             Console.ReadKey();
         }
 

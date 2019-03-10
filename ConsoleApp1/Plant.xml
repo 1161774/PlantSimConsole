@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <plant>
-  <pump name="PMP9601">
+  <pump name="PMP9601" maxFlowRate="10">
     <input  name="Run"        address="E01R1S7_EPWW.Data.0" />
     <input  name="Stop"       address="E01R1S7_EPWW.Data.1" />
     <input  name="Reset"      address="E01R1S7_EPWW.Data.2" />
