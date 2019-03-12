@@ -11,26 +11,44 @@ namespace ConsoleApp1
         public enum _direction { Input, Output };
         public enum _ioType { Digital, Analog };
 
-
-        public string name;
-        public string address;
+        public string name = "";
+        public string address = "";
         public _direction direction;
         public _ioType ioType;
 
-        private double value;
-
         public FieldIO(string name, string address)
         {
-            this.name = name;
+            this.name = name.ToUpper();
             this.address = address;
         }
     }
 
     public class DigitalInput : FieldIO
     {
+        private bool _isUpdated = false;
+        public bool isUpdated
+        {
+            get { return _isUpdated; }
+            set { _isUpdated = isUpdated; }
+        }
+
+        private bool value;
+        public bool Value
+        {
+            get { return value; }
+            set
+            {
+                if (this.value != Value)
+                {
+                    this.value = Value;
+                    this.isUpdated = true;
+                }
+            }
+        }
+
         public DigitalInput(string name, string address) : base(name, address)
         {
-            this.name = name;
+            this.name = name.ToUpper();
             this.address = address;
             this.direction = _direction.Input;
             this.ioType = _ioType.Digital;
@@ -39,9 +57,30 @@ namespace ConsoleApp1
 
     public class DigitalOutput : FieldIO
     {
+        private bool _isUpdated = false;
+        public bool isUpdated
+        {
+            get { return _isUpdated; }
+            set { _isUpdated = isUpdated; }
+        }
+
+        private bool value;
+        public bool Value
+        {
+            get { return value; }
+            set
+            {
+                if (this.value != Value)
+                {
+                    this.value = Value;
+                    this.isUpdated = true;
+                }
+            }
+        }
+
         public DigitalOutput(string name, string address) : base(name, address)
         {
-            this.name = name;
+            this.name = name.ToUpper();
             this.address = address;
             this.direction = _direction.Output;
             this.ioType = _ioType.Digital;
@@ -49,9 +88,30 @@ namespace ConsoleApp1
     }
     public class AnalogInput : FieldIO
     {
+        private bool _isUpdated = false;
+        public bool isUpdated
+        {
+            get { return _isUpdated; }
+            set { _isUpdated = isUpdated; }
+        }
+
+        private double value;
+        public double Value
+        {
+            get { return value; }
+            set
+            {
+                if (this.value != Value)
+                {
+                    this.value = Value;
+                    this.isUpdated = true;
+                }
+            }
+        }
+
         public AnalogInput(string name, string address) : base(name, address)
         {
-            this.name = name;
+            this.name = name.ToUpper();
             this.address = address;
             this.direction = _direction.Input;
             this.ioType = _ioType.Analog;
@@ -59,9 +119,29 @@ namespace ConsoleApp1
     }
     public class AnalogOutput : FieldIO
     {
+        private bool _isUpdated = false;
+        public bool isUpdated
+        {
+            get { return _isUpdated; }
+            set { _isUpdated = isUpdated; }
+        }
+
+        private double value;
+        public double Value
+        {
+            get { return value; }
+            set {
+                if (this.value != Value)
+                {
+                    this.value = Value;
+                    this.isUpdated = true;
+                }
+            }
+        }
+
         public AnalogOutput(string name, string address) : base(name, address)
         {
-            this.name = name;
+            this.name = name.ToUpper();
             this.address = address;
             this.direction = _direction.Output;
             this.ioType = _ioType.Analog;

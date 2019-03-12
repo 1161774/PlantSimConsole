@@ -54,11 +54,11 @@ namespace ConsoleApp1
                     outputs.Add(new KeyValuePair<string, string>(i.Attribute("name").Value, i.Attribute("address").Value));
                 }
 
-                double maxFlowRate;
-                double.TryParse(pump.Attribute("maxFlowRate").Value, out maxFlowRate);
-
                 Pump p = new Pump(inputs, outputs);
-                p.MaxFlowRate = maxFlowRate;
+
+                double maxFlowRate;
+                //double.TryParse(pump.Attribute("maxFlowRate").Value, out maxFlowRate);
+                //p.MaxFlowRate = maxFlowRate;
 
 
 
@@ -75,7 +75,7 @@ namespace ConsoleApp1
                 }
             }
 
-            try
+/*            try
             {
                 using (DdeClient c = new DdeClient("RSLinx", "PlantSim"))
                 {
@@ -94,7 +94,7 @@ namespace ConsoleApp1
                     // RSLinx seems to reject the first register request. Try it 3 times, if it still doesn't work then an issue.
                     lock (FieldInputsLock)
                     {
-                        foreach (var item in FieldInputs.Keys)
+                        foreach (var item in FieldInputs.Values)
                         {
                             try
                             {
@@ -117,12 +117,6 @@ namespace ConsoleApp1
 
                     Console.WriteLine(" OK");
 
-                    Timer t = new Timer();
-                    t.Elapsed += T_Elapsed;
-                    t.Interval = 1000;
-                    t.AutoReset = true;
-                    t.Start();
-
                     Console.ReadLine();
                 }
             }
@@ -131,6 +125,13 @@ namespace ConsoleApp1
                 Console.WriteLine(e.ToString());
                 Console.ReadKey();
             }
+            */
+
+            Timer t = new Timer();
+            t.Elapsed += T_Elapsed;
+            t.Interval = 1000;
+            t.AutoReset = true;
+            t.Start();
 
 
             Console.ReadKey();
@@ -138,14 +139,33 @@ namespace ConsoleApp1
 
         private static void T_Elapsed(object sender, ElapsedEventArgs e)
         {
+            Dictionary<string, string> fieldInputs;
+
+            //Get a local copy of the field inputs
             lock (FieldInputsLock)
             {
-
-                foreach (var i in FieldInputs)
-                {
-                    Console.WriteLine(i.Key + ": " + i.Value);
-                }
+                fieldInputs = FieldInputs;
             }
+
+            //Update inputs
+            foreach (var pump in Pumps)
+            {
+                pump.UpdateInputs(fieldInputs);
+            }
+
+            //Run the pump logic
+            foreach (var pump in Pumps)
+            {
+                pump.Run();
+            }
+
+            //Update outputs
+            //foreach (var pump in Pumps)
+            //{
+            //    pump.UpdateOutputs();
+            //}
+
+
         }
 
         private static void C_Advise(object sender, DdeAdviseEventArgs e)
