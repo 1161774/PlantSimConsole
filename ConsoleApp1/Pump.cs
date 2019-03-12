@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -65,13 +66,18 @@ namespace ConsoleApp1
         }
 
 
-        public void UpdateInputs(Dictionary<string, string> FieldInputs)
+        public void UpdateInputs(Hashtable FieldInputs)
         {
-            foreach(var i in DigitalInputs)
+            foreach(var di in DigitalInputs)
             {
-                bool res;
+                bool.TryParse(FieldInputs[di.address].ToString(), out bool res);
+                di.Value = res;
+            }
 
-                res = false;
+            foreach (var di in AnalogInputs)
+            {
+                double.TryParse(FieldInputs[di.address].ToString(), out double res);
+                di.Value = res;
             }
 
         }
@@ -90,68 +96,12 @@ namespace ConsoleApp1
             FieldOutputs = fieldOutputs;
         }
 
-        public Pump(List<KeyValuePair<string, string>> inputs, List<KeyValuePair<string, string>> outputs)
+        public Pump(Hashtable inputs, Hashtable outputs)
         {
             foreach (var di in DigitalInputs)
             {
-                bool r = false;
-
-                inputs
-
+                di.address = inputs[di.name].ToString();
             }
-
-
-
-            /*
-            if(i.Key.ToUpper() == "RUN")
-            {
-                inputRun.address = i.Value;
-            }
-            else if (i.Key.ToUpper() == "STOP")
-            {
-                inputStop.address = i.Value;
-            }
-            else if(i.Key.ToUpper() == "RESET")
-            {
-                inputReset.address = i.Value;
-            }
-        }
-
-        foreach (var i in outputs)
-        {
-            if (i.Key.ToUpper() == "AVAILABLE")
-            {
-                outputAvailable.address = i.Value;
-            }
-            else if (i.Key.ToUpper() == "RUNNING")
-            {
-                outputRunning.address = i.Value;
-            }
-            else if (i.Key.ToUpper() == "FAULT")
-            {
-                outputFaulted.address = i.Value;
-            }
-            else if (i.Key.ToUpper() == "RESET")
-            {
-                outputReset.address = i.Value;
-            }
-            else if (i.Key.ToUpper() == "START")
-            {
-                outputStart.address = i.Value;
-            }
-            else if (i.Key.ToUpper() == "STOP")
-            {
-                outputStop.address = i.Value;
-            }
-            else if (i.Key.ToUpper() == "AUTO")
-            {
-                outputAuto.address = i.Value;
-            }
-            else if (i.Key.ToUpper() == "MANUAL")
-            {
-                outputManual.address = i.Value;
-            }*/
-
         }
     }
 }

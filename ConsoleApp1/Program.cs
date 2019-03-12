@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,8 +13,10 @@ namespace ConsoleApp1
     class Program
     {
 
-        static Dictionary<string, string> FieldInputs = new Dictionary<string, string>();
+        //static Dictionary<string, string> FieldInputs = new Dictionary<string, string>();
         public static readonly object FieldInputsLock = new object();
+
+        static Hashtable FieldInputs = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
 
         static List<Pump> Pumps = new List<Pump>();
 
@@ -40,18 +43,18 @@ namespace ConsoleApp1
 
                 var pumpName = pump.Name.LocalName;
 
-                List<KeyValuePair<string, string>> inputs = new List<KeyValuePair<string, string>>();
+                Hashtable inputs = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
                 var ins = pump.Elements("input").Select(x => x).ToList();
                 foreach(var i in ins)
                 {
-                    inputs.Add(new KeyValuePair<string, string>(i.Attribute("name").Value, i.Attribute("address").Value));
+                    inputs.Add(i.Attribute("name").Value, i.Attribute("address").Value);
                 }
 
-                List<KeyValuePair<string, string>> outputs = new List<KeyValuePair<string, string>>();
+                Hashtable outputs = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
                 var outs = pump.Elements("output").Select(x => x).ToList();
                 foreach (var i in outs)
                 {
-                    outputs.Add(new KeyValuePair<string, string>(i.Attribute("name").Value, i.Attribute("address").Value));
+                    outputs.Add(i.Attribute("name").Value, i.Attribute("address").Value);
                 }
 
                 Pump p = new Pump(inputs, outputs);
@@ -139,7 +142,7 @@ namespace ConsoleApp1
 
         private static void T_Elapsed(object sender, ElapsedEventArgs e)
         {
-            Dictionary<string, string> fieldInputs;
+            Hashtable fieldInputs;
 
             //Get a local copy of the field inputs
             lock (FieldInputsLock)
