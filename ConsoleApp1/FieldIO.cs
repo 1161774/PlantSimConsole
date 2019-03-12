@@ -25,25 +25,11 @@ namespace ConsoleApp1
 
     public class DigitalInput : FieldIO
     {
-        private bool _isUpdated = false;
-        public bool isUpdated
-        {
-            get { return _isUpdated; }
-            set { _isUpdated = isUpdated; }
-        }
-
-        private bool value;
+        private bool _value;
         public bool Value
         {
-            get { return value; }
-            set
-            {
-                if (this.value != Value)
-                {
-                    this.value = Value;
-                    this.isUpdated = true;
-                }
-            }
+            get { return _value; }
+            set { _value = value; }
         }
 
         public DigitalInput(string name, string address) : base(name, address)
@@ -64,16 +50,16 @@ namespace ConsoleApp1
             set { _isUpdated = isUpdated; }
         }
 
-        private bool value;
+        private bool _value;
         public bool Value
         {
-            get { return value; }
+            get { return _value; }
             set
             {
-                if (this.value != Value)
+                if (_value != value)
                 {
-                    this.value = Value;
-                    this.isUpdated = true;
+                    _value = value;
+                    isUpdated = true;
                 }
             }
         }
@@ -88,25 +74,11 @@ namespace ConsoleApp1
     }
     public class AnalogInput : FieldIO
     {
-        private bool _isUpdated = false;
-        public bool isUpdated
-        {
-            get { return _isUpdated; }
-            set { _isUpdated = isUpdated; }
-        }
-
-        private double value;
+        private double _value;
         public double Value
         {
-            get { return value; }
-            set
-            {
-                if (this.value != Value)
-                {
-                    this.value = Value;
-                    this.isUpdated = true;
-                }
-            }
+            get { return _value; }
+            set { _value = value; }
         }
 
         public AnalogInput(string name, string address) : base(name, address)
@@ -126,15 +98,15 @@ namespace ConsoleApp1
             set { _isUpdated = isUpdated; }
         }
 
-        private double value;
+        private double _value;
         public double Value
         {
-            get { return value; }
+            get { return _value; }
             set {
-                if (this.value != Value)
+                if (_value != value)
                 {
-                    this.value = Value;
-                    this.isUpdated = true;
+                    _value = value;
+                    isUpdated = true;
                 }
             }
         }

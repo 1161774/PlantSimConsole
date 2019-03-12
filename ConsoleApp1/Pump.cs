@@ -70,20 +70,31 @@ namespace ConsoleApp1
         {
             foreach(var di in DigitalInputs)
             {
-                bool.TryParse(FieldInputs[di.address].ToString(), out bool res);
-                di.Value = res;
+                if (di.address != null)
+                {
+                    if (FieldInputs[di.address] != null)
+                    {
+                        di.Value = FieldInputs[di.address].ToString() == "1";
+                    }
+                }
             }
 
-            foreach (var di in AnalogInputs)
+            foreach (var ai in AnalogInputs)
             {
-                double.TryParse(FieldInputs[di.address].ToString(), out double res);
-                di.Value = res;
+                if (ai.address != null)
+                {
+                    if (FieldInputs[ai.address] != null)
+                    {
+                        double.TryParse(FieldInputs[ai.address].ToString(), out double res);
+                        ai.Value = res;
+                    }
+                }
             }
-
         }
 
         public void Run()
         {
+            var res = DigitalInputs.First(s => s.name == "RUN");
         }
 
         public void UpdateOutputs(out Dictionary<string, string> FieldOutputs)
@@ -100,7 +111,18 @@ namespace ConsoleApp1
         {
             foreach (var di in DigitalInputs)
             {
-                di.address = inputs[di.name].ToString();
+                if (inputs.ContainsKey(di.name))
+                {
+                    di.address = inputs[di.name].ToString();
+                }
+            }
+
+            foreach (var ai in AnalogInputs)
+            {
+                if (inputs.ContainsKey(ai.name))
+                {
+                    ai.address = inputs[ai.name].ToString();
+                }
             }
         }
     }
