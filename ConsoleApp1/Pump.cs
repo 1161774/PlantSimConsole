@@ -68,13 +68,14 @@ namespace ConsoleApp1
 
         public void UpdateInputs(Hashtable FieldInputs)
         {
-            foreach(var di in DigitalInputs)
+
+            foreach (var di in DigitalInputs)
             {
                 if (di.address != null)
                 {
                     if (FieldInputs[di.address] != null)
                     {
-                        di.Value = FieldInputs[di.address].ToString() == "1";
+                        di.Value = FieldInputs[di.address].ToString().Contains("1");
                     }
                 }
             }
@@ -94,15 +95,34 @@ namespace ConsoleApp1
 
         public void Run()
         {
-            var res = DigitalInputs.First(s => s.name == "RUN");
+            var runCmd = DigitalInputs.First(s => s.name == "RUN").Value;
+
+            bool runOut = runCmd;
+
+            DigitalOutputs.First(s => s.name == "RUNNING").Value = runOut;
         }
 
-        public void UpdateOutputs(out Dictionary<string, string> FieldOutputs)
+        public void UpdateOutputs(out Hashtable FieldOutputs)
         {
-            Dictionary<string, string> fieldOutputs = new Dictionary<string, string>();
+            Hashtable fieldOutputs = new Hashtable();
 
+            foreach (var o in DigitalOutputs)
+            {
+                if (o.isUpdated && o.address != null)
+                {
+                    fieldOutputs.Add(o.address, o.Value);
+                    o.isUpdated = false;
+                }
+            }
 
-
+            foreach (var o in AnalogOutputs)
+            {
+                if (o.isUpdated && o.address != null)
+                {
+                    fieldOutputs.Add(o.address, o.Value);
+                    o.isUpdated = false;
+                }
+            }
 
             FieldOutputs = fieldOutputs;
         }
@@ -124,6 +144,23 @@ namespace ConsoleApp1
                     ai.address = inputs[ai.name].ToString();
                 }
             }
+
+            foreach (var _do in DigitalOutputs)
+            {
+                if (outputs.ContainsKey(_do.name))
+                {
+                    _do.address = outputs[_do.name].ToString();
+                }
+            }
+
+            foreach (var ao in AnalogOutputs)
+            {
+                if (outputs.ContainsKey(ao.name))
+                {
+                    ao.address = outputs[ao.name].ToString();
+                }
+            }
+
         }
     }
 }

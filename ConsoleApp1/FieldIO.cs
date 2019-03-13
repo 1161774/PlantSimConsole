@@ -47,7 +47,7 @@ namespace ConsoleApp1
         public bool isUpdated
         {
             get { return _isUpdated; }
-            set { _isUpdated = isUpdated; }
+            set { _isUpdated = value; }
         }
 
         private bool _value;
@@ -95,7 +95,7 @@ namespace ConsoleApp1
         public bool isUpdated
         {
             get { return _isUpdated; }
-            set { _isUpdated = isUpdated; }
+            set { _isUpdated = value; }
         }
 
         private double _value;

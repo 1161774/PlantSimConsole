@@ -13,10 +13,11 @@ namespace ConsoleApp1
     class Program
     {
 
-        //static Dictionary<string, string> FieldInputs = new Dictionary<string, string>();
+        static DdeClient c;
+
         public static readonly object FieldInputsLock = new object();
 
-        static Hashtable FieldInputs = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
+        static Hashtable _FieldInputs = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
 
         static List<Pump> Pumps = new List<Pump>();
 
@@ -59,7 +60,7 @@ namespace ConsoleApp1
 
                 Pump p = new Pump(inputs, outputs);
 
-                double maxFlowRate;
+//                double maxFlowRate;
                 //double.TryParse(pump.Attribute("maxFlowRate").Value, out maxFlowRate);
                 //p.MaxFlowRate = maxFlowRate;
 
@@ -74,61 +75,61 @@ namespace ConsoleApp1
             {
                 foreach (var i in pumpInputs)
                 {
-                    FieldInputs.Add(i, null);
+                    _FieldInputs.Add(i, null);
                 }
             }
-
-/*            try
+            
+            try
             {
-                using (DdeClient c = new DdeClient("RSLinx", "PlantSim"))
+                c = new DdeClient("RSLinx", "PlantSim");
+
+                c.Disconnected += C_Disconnected;
+
+                Console.Write("Connecting...");
+                c.Connect();
+                Console.WriteLine(" OK");
+
+                Console.Write("Starting advisor...");
+                c.Advise += C_Advise;
+                Console.WriteLine(" OK");
+
+                Console.Write("Adding vars...");
+
+                // RSLinx seems to reject the first register request. Try it 3 times, if it still doesn't work then an issue.
+                lock (FieldInputsLock)
                 {
-                    c.Disconnected += C_Disconnected;
-
-                    Console.Write("Connecting...");
-                    c.Connect();
-                    Console.WriteLine(" OK");
-
-                    Console.Write("Starting advisor...");
-                    c.Advise += C_Advise;
-                    Console.WriteLine(" OK");
-
-                    Console.Write("Adding vars...");
-
-                    // RSLinx seems to reject the first register request. Try it 3 times, if it still doesn't work then an issue.
-                    lock (FieldInputsLock)
+                    foreach (var item in _FieldInputs.Keys)
                     {
-                        foreach (var item in FieldInputs.Values)
+                        if (item != null)
                         {
                             try
                             {
-                                c.StartAdvise(item, 1, true, 1000);
+                                c.StartAdvise(item.ToString(), 1, true, 1000);
                             }
                             catch
                             {
                                 try
                                 {
-                                    c.StartAdvise(item, 1, true, 1000);
+                                    c.StartAdvise(item.ToString(), 1, true, 1000);
                                 }
                                 catch
                                 {
                                     //If this doesn't work, fall through to exception handler
-                                    c.StartAdvise(item, 1, true, 1000);
+                                    c.StartAdvise(item.ToString(), 1, true, 1000);
                                 }
                             }
                         }
                     }
-
-                    Console.WriteLine(" OK");
-
-                    Console.ReadLine();
                 }
+
+                Console.WriteLine(" OK");
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
                 Console.ReadKey();
             }
-            */
+            
 
             Timer t = new Timer();
             t.Elapsed += T_Elapsed;
@@ -136,18 +137,30 @@ namespace ConsoleApp1
             t.AutoReset = true;
             t.Start();
 
-
+            Console.WriteLine("Press any key to close application");
             Console.ReadKey();
+
+            Console.Write("Stopping Timer...");
+            t.Stop();
+            t.Elapsed -= T_Elapsed;
+            Console.WriteLine(" OK");
+
+            Console.Write("Closing DDE Link...");
+            c.Dispose();
+
+//            c.Disconnect();
+            Console.WriteLine(" OK");
         }
 
         private static void T_Elapsed(object sender, ElapsedEventArgs e)
         {
+            Console.WriteLine("loop");
             Hashtable fieldInputs;
 
             //Get a local copy of the field inputs
             lock (FieldInputsLock)
             {
-                fieldInputs = FieldInputs;
+                fieldInputs = _FieldInputs;
             }
 
             //Update inputs
@@ -163,19 +176,31 @@ namespace ConsoleApp1
             }
 
             //Update outputs
-            //foreach (var pump in Pumps)
-            //{
-            //    pump.UpdateOutputs();
-            //}
+            foreach (var pump in Pumps)
+            {
+                pump.UpdateOutputs(out Hashtable fieldOutputs);
 
-
+                if (c != null && c.IsConnected)
+                {
+                    foreach (DictionaryEntry o in fieldOutputs)
+                    {
+                        if (o.Key != null && o.Value != null)
+                        {
+                            Console.WriteLine("Poke: " + o.Key.ToString() + ": " + o.Value.ToString());
+                            string res = o.Value.ToString() == "True" ? "1" : "0";
+                            c.Poke(o.Key.ToString(), res, 1000);
+                        }
+                    }
+                }
+            }
         }
 
         private static void C_Advise(object sender, DdeAdviseEventArgs e)
         {
             lock (FieldInputsLock)
             {
-                FieldInputs[e.Item] = e.Text;
+                Console.WriteLine("Advise: " + e.Item + ": " + e.Text);
+                _FieldInputs[e.Item] = e.Text;
             }
         }
 

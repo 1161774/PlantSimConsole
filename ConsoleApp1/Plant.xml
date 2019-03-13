@@ -20,9 +20,9 @@
     <output name="Available"  address="E01R1S2_EPWW.Data.0" />
     <output name="Running"    address="E01R1S2_EPWW.Data.1" />
     <output name="Fault"      address="E01R1S2_EPWW.Data.2" />
-    <output name="ResetPB"    address="E01R1S2_EPWW.Data.3" />
-    <output name="StartPB"    address="E01R1S2_EPWW.Data.4" />
-    <output name="StopPB"     address="E01R1S2_EPWW.Data.5" />
+    <output name="Reset"    address="E01R1S2_EPWW.Data.3" />
+    <output name="Start"    address="E01R1S2_EPWW.Data.4" />
+    <output name="Stop"     address="E01R1S2_EPWW.Data.5" />
     <output name="Auto"       address="E01R1S2_EPWW.Data.6" />
     <output name="Manual"     address="E01R1S2_EPWW.Data.7" />
   </pump>
@@ -33,9 +33,9 @@
     <output name="Available"  address="E01R1S2_EPWW.Data.0" />
     <output name="Running"    address="E01R1S2_EPWW.Data.1" />
     <output name="Fault"      address="E01R1S2_EPWW.Data.2" />
-    <output name="ResetPB"    address="E01R1S2_EPWW.Data.3" />
-    <output name="StartPB"    address="E01R1S2_EPWW.Data.4" />
-    <output name="StopPB"     address="E01R1S2_EPWW.Data.5" />
+    <output name="Reset"    address="E01R1S2_EPWW.Data.3" />
+    <output name="Start"    address="E01R1S2_EPWW.Data.4" />
+    <output name="Stop"     address="E01R1S2_EPWW.Data.5" />
     <output name="Auto"       address="E01R1S2_EPWW.Data.6" />
     <output name="Manual"     address="E01R1S2_EPWW.Data.7" />
   </storage>
