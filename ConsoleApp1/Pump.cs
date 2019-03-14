@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace ConsoleApp1
 {
@@ -38,97 +40,72 @@ namespace ConsoleApp1
         };
 
 
-        private string state;
-        public string State
-        {
-            get { return state; }
-        }
+        public double rampUpTime = 10;
+        public double rampDownTime = 10;
 
         private double flowRate;
         public double FlowRate
         {
             get { return flowRate;}
-            set { flowRate = FlowRate;}
+            set { flowRate = value;}
         }
 
-        private double maxFlowRate;
+        private double maxFlowRate = 1;
         public double MaxFlowRate
         {
             get { return maxFlowRate; }
-            set { maxFlowRate = MaxFlowRate; }
+            set { maxFlowRate = value; }
         }
+
+		Stopwatch cycleTimer = new Stopwatch();
 
 
         private double currentSpeed;
+
         public double CurrentSpeed
         {
-            get { return currentSpeed; }
+            get
+            {
+                    return currentSpeed;
+            }
+            set
+            {
+				if(value < 0.0)
+				{
+                    currentSpeed = 0.0;
+				}
+				else if(value > 1.0)
+				{
+					currentSpeed = 1.0;
+				}
+				else
+				{
+					currentSpeed = value;
+				}
+
+                //=1/(1+(EXP((-8*(E3-0.5)))))
+                //Use a logistics 'S' curve to map the pump speed to a flow rate. constant chosen arbitrarily.
+                double scaleFactor = 1 / (1 + Math.Pow(Math.E , (-8.0 * (currentSpeed - 0.5))));
+
+                if (scaleFactor < 0.05)
+                {
+                    scaleFactor = 0.0;
+                }
+                else if(scaleFactor > 0.95)
+                {
+                    scaleFactor = 1.0;
+                }
+
+                FlowRate = scaleFactor * MaxFlowRate;
+            }
         }
 
-
-        public void UpdateInputs(Hashtable FieldInputs)
-        {
-
-            foreach (var di in DigitalInputs)
-            {
-                if (di.address != null)
-                {
-                    if (FieldInputs[di.address] != null)
-                    {
-                        di.Value = FieldInputs[di.address].ToString().Contains("1");
-                    }
-                }
-            }
-
-            foreach (var ai in AnalogInputs)
-            {
-                if (ai.address != null)
-                {
-                    if (FieldInputs[ai.address] != null)
-                    {
-                        double.TryParse(FieldInputs[ai.address].ToString(), out double res);
-                        ai.Value = res;
-                    }
-                }
-            }
-        }
-
-        public void Run()
-        {
-            var runCmd = DigitalInputs.First(s => s.name == "RUN").Value;
-
-            bool runOut = runCmd;
-
-            DigitalOutputs.First(s => s.name == "RUNNING").Value = runOut;
-        }
-
-        public void UpdateOutputs(out Hashtable FieldOutputs)
-        {
-            Hashtable fieldOutputs = new Hashtable();
-
-            foreach (var o in DigitalOutputs)
-            {
-                if (o.isUpdated && o.address != null)
-                {
-                    fieldOutputs.Add(o.address, o.Value);
-                    o.isUpdated = false;
-                }
-            }
-
-            foreach (var o in AnalogOutputs)
-            {
-                if (o.isUpdated && o.address != null)
-                {
-                    fieldOutputs.Add(o.address, o.Value);
-                    o.isUpdated = false;
-                }
-            }
-
-            FieldOutputs = fieldOutputs;
-        }
 
         public Pump(Hashtable inputs, Hashtable outputs)
         {
+
+            //Link IO to addresses
+            #region IO Resolution
             foreach (var di in DigitalInputs)
             {
                 if (inputs.ContainsKey(di.name))
@@ -160,7 +137,83 @@ namespace ConsoleApp1
                     ao.address = outputs[ao.name].ToString();
                 }
             }
+            #endregion
 
+            
+
+        }
+
+        public void UpdateInputs(Hashtable FieldInputs)
+        {
+
+            foreach (var di in DigitalInputs)
+            {
+                if (di.address != null)
+                {
+                    if (FieldInputs[di.address] != null)
+                    {
+                        di.Value = FieldInputs[di.address].ToString().Contains("1");
+                    }
+                }
+            }
+
+            foreach (var ai in AnalogInputs)
+            {
+                if (ai.address != null)
+                {
+                    if (FieldInputs[ai.address] != null)
+                    {
+                        double.TryParse(FieldInputs[ai.address].ToString(), out double res);
+                        ai.Value = res;
+                    }
+                }
+            }
+        }
+
+        public void UpdateOutputs(out Hashtable FieldOutputs)
+        {
+            Hashtable fieldOutputs = new Hashtable();
+
+            foreach (var o in DigitalOutputs)
+            {
+                if (o.isUpdated && o.address != null)
+                {
+                    fieldOutputs.Add(o.address, o.Value);
+                    o.isUpdated = false;
+                }
+            }
+
+            foreach (var o in AnalogOutputs)
+            {
+                if (o.isUpdated && o.address != null)
+                {
+                    fieldOutputs.Add(o.address, o.Value);
+                    o.isUpdated = false;
+                }
+            }
+
+            FieldOutputs = fieldOutputs;
+        }
+
+        public void Run()
+        {
+            var elapsed = cycleTimer.ElapsedMilliseconds;
+			cycleTimer.Restart();
+
+            bool runCmd = DigitalInputs.First(s => s.name == "RUN").Value;
+
+            if(runCmd)
+			{
+				CurrentSpeed += elapsed / rampUpTime / 1000;
+			}
+			else
+			{
+				CurrentSpeed -= elapsed / rampDownTime / 1000;
+			}
+
+            Console.WriteLine(FlowRate);
+
+            DigitalOutputs.First(s => s.name == "RUNNING").Value = currentSpeed > 0.9;
         }
     }
 }

@@ -60,11 +60,18 @@ namespace ConsoleApp1
 
                 Pump p = new Pump(inputs, outputs);
 
-//                double maxFlowRate;
-                //double.TryParse(pump.Attribute("maxFlowRate").Value, out maxFlowRate);
-                //p.MaxFlowRate = maxFlowRate;
 
+                double maxFlowRate;
+                double.TryParse(pump.Attribute("maxFlowRate").Value, out maxFlowRate);
+                p.MaxFlowRate = maxFlowRate;
 
+                double rampUpTime;
+                double.TryParse(pump.Attribute("rampUpTime").Value, out rampUpTime);
+                p.rampUpTime = rampUpTime;
+
+                double rampDownTime;
+                double.TryParse(pump.Attribute("rampDownTime").Value, out rampDownTime);
+                p.rampDownTime = rampDownTime;
 
                 Pumps.Add(p);
 
@@ -79,7 +86,9 @@ namespace ConsoleApp1
                 }
             }
             
-            try
+
+
+/*            try
             {
                 c = new DdeClient("RSLinx", "PlantSim");
 
@@ -129,11 +138,11 @@ namespace ConsoleApp1
                 Console.WriteLine(e.ToString());
                 Console.ReadKey();
             }
-            
+            */
 
             Timer t = new Timer();
             t.Elapsed += T_Elapsed;
-            t.Interval = 1000;
+            t.Interval = 100;
             t.AutoReset = true;
             t.Start();
 
@@ -154,7 +163,6 @@ namespace ConsoleApp1
 
         private static void T_Elapsed(object sender, ElapsedEventArgs e)
         {
-            Console.WriteLine("loop");
             Hashtable fieldInputs;
 
             //Get a local copy of the field inputs
