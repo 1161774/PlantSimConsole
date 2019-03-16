@@ -25,7 +25,7 @@ namespace ConsoleApp1
 
     public class DigitalInput : FieldIO
     {
-        private bool _value;
+        private bool _value = false;
         public bool Value
         {
             get { return _value; }
@@ -74,7 +74,7 @@ namespace ConsoleApp1
     }
     public class AnalogInput : FieldIO
     {
-        private double _value;
+        private double _value = 0.0;
         public double Value
         {
             get { return _value; }

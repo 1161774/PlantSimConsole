@@ -43,6 +43,9 @@ namespace ConsoleApp1
         public double rampUpTime = 10;
         public double rampDownTime = 10;
 
+        private bool hasRunCmd = false;
+        private bool hasRunSpeedSP = false;
+
         private double flowRate;
         public double FlowRate
         {
@@ -87,6 +90,7 @@ namespace ConsoleApp1
                 //Use a logistics 'S' curve to map the pump speed to a flow rate. constant chosen arbitrarily.
                 double scaleFactor = 1 / (1 + Math.Pow(Math.E , (-8.0 * (currentSpeed - 0.5))));
 
+                //The curve doesn't really go completely to 0 or 1, so jump it there when it gets close.
                 if (scaleFactor < 0.05)
                 {
                     scaleFactor = 0.0;
@@ -139,7 +143,13 @@ namespace ConsoleApp1
             }
             #endregion
 
-            
+            //Determine what the pump can actually do
+            #region Function Resolution
+
+            hasRunCmd = DigitalInputs.First(s => s.name == "RUN").address != null;
+            hasRunSpeedSP = AnalogInputs.First(s => s.name == "RUNSPEED").address != null;
+
+            #endregion
 
         }
 
@@ -200,20 +210,61 @@ namespace ConsoleApp1
             var elapsed = cycleTimer.ElapsedMilliseconds;
 			cycleTimer.Restart();
 
-            bool runCmd = DigitalInputs.First(s => s.name == "RUN").Value;
+            bool runCmd;
+            double runSpeedSP;
 
-            if(runCmd)
+
+            if(hasRunCmd && hasRunSpeedSP)
+            {
+                runCmd = DigitalInputs.First(s => s.name == "RUN").Value;
+                runSpeedSP = AnalogInputs.First(s => s.name == "RUNSPEED").Value;
+            }
+            else if(hasRunCmd)
+            {
+                runCmd = DigitalInputs.First(s => s.name == "RUN").Value;
+                runSpeedSP = 1.0;
+            }
+            else if(hasRunCmd)
+            {
+                runSpeedSP = AnalogInputs.First(s => s.name == "RUNSPEED").Value;
+                runCmd = runSpeedSP > 0.0;
+            }
+            else
+            {
+                runCmd = false;
+                runSpeedSP = 0.0;
+            }
+
+            var inc = elapsed / rampUpTime / 1000;
+            var dec = elapsed / rampDownTime / 1000;
+
+            if (runCmd)
 			{
-				CurrentSpeed += elapsed / rampUpTime / 1000;
+                if (CurrentSpeed + inc < runSpeedSP) CurrentSpeed += inc;
+                else if (CurrentSpeed - dec > runSpeedSP) CurrentSpeed -= dec;
+                else
+                {
+                    currentSpeed = runSpeedSP;
+                }
 			}
 			else
 			{
-				CurrentSpeed -= elapsed / rampDownTime / 1000;
+				CurrentSpeed -= dec;
 			}
 
-            Console.WriteLine(FlowRate);
 
-            DigitalOutputs.First(s => s.name == "RUNNING").Value = currentSpeed > 0.9;
+
+
+            DigitalOutputs.First(s => s.name == "RUNNING").Value = currentSpeed > 0;
+            DigitalOutputs.First(s => s.name == "AVAILABLE").Value = true;
+            DigitalOutputs.First(s => s.name == "FAULT").Value = false;
+            DigitalOutputs.First(s => s.name == "RESET").Value = false;
+            DigitalOutputs.First(s => s.name == "AUTO").Value = true;
+            DigitalOutputs.First(s => s.name == "MANUAL").Value = false;
+
+            AnalogOutputs.First(s => s.name == "SPEED").Value = CurrentSpeed;
+
+
         }
     }
 }

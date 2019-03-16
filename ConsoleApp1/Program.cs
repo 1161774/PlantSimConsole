@@ -28,11 +28,13 @@ namespace ConsoleApp1
 
 
             var pumps = doc.Root
+                    .Elements("drives")
                     .Elements("pump")
                     .Select(x => x)
                     .ToList();
 
             var pumpInputs = doc.Root
+                                .Elements("drives")
                                 .Elements("pump")
                                 .Elements("input")
                                 .Attributes("address")
