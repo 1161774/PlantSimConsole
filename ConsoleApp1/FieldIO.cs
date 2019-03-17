@@ -74,6 +74,9 @@ namespace ConsoleApp1
     }
     public class AnalogInput : FieldIO
     {
+        public double scaleLow;
+        public double scaleHigh;
+
         private double _value = 0.0;
         public double Value
         {
@@ -81,12 +84,19 @@ namespace ConsoleApp1
             set { _value = value; }
         }
 
-        public AnalogInput(string name, string address) : base(name, address)
+        public double FieldValue
+        {
+            set { _value = value / scaleHigh * scaleLow; }
+        }
+
+        public AnalogInput(string name, string address, string ScaleLow, string ScaleHigh) : base(name, address)
         {
             this.name = name.ToUpper();
             this.address = address;
             this.direction = _direction.Input;
             this.ioType = _ioType.Analog;
+            this.scaleLow = double.Parse(ScaleLow);
+            this.scaleHigh = double.Parse(ScaleHigh);
         }
     }
     public class AnalogOutput : FieldIO
@@ -97,6 +107,10 @@ namespace ConsoleApp1
             get { return _isUpdated; }
             set { _isUpdated = value; }
         }
+
+        public double scaleLow;
+        public double scaleHigh;
+
 
         private double _value;
         public double Value
@@ -111,12 +125,19 @@ namespace ConsoleApp1
             }
         }
 
-        public AnalogOutput(string name, string address) : base(name, address)
+        public double FieldValue
+        {
+            get { return _value * (scaleHigh - scaleLow) / scaleLow + scaleLow; }
+        }
+
+        public AnalogOutput(string name, string address, string ScaleLow, string ScaleHigh) : base(name, address)
         {
             this.name = name.ToUpper();
             this.address = address;
             this.direction = _direction.Output;
             this.ioType = _ioType.Analog;
+            this.scaleLow = double.Parse(ScaleLow);
+            this.scaleHigh = double.Parse(ScaleHigh);
         }
     }
 }

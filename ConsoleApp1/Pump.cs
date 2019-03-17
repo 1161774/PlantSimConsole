@@ -31,12 +31,12 @@ namespace ConsoleApp1
 
         List<AnalogInput> AnalogInputs = new List<AnalogInput>()
         {
-            new AnalogInput("RunSpeed", null)
+            new AnalogInput("RunSpeed", null, "0.0", "1.0")
         };
 
         List<AnalogOutput> AnalogOutputs = new List<AnalogOutput>()
         {
-            new AnalogOutput("Speed", null)
+            new AnalogOutput("RunningSpeed", null, "0.0", "1.0")
         };
 
 
@@ -105,40 +105,44 @@ namespace ConsoleApp1
         }
 
 
-        public Pump(Hashtable inputs, Hashtable outputs)
+        public Pump(Hashtable digitalInputs, Hashtable digitalOutputs, Hashtable analogInputs, Hashtable analogOutputs)
         {
 
             //Link IO to addresses
             #region IO Resolution
-            foreach (var di in DigitalInputs)
+            foreach (var input in DigitalInputs)
             {
-                if (inputs.ContainsKey(di.name))
+                if (digitalInputs.ContainsKey(input.name))
                 {
-                    di.address = inputs[di.name].ToString();
+                    input.address = ((DigitalInput)digitalInputs[input.name]).address;
                 }
             }
 
-            foreach (var ai in AnalogInputs)
+            foreach (var input in AnalogInputs)
             {
-                if (inputs.ContainsKey(ai.name))
+                if (analogInputs.ContainsKey(input.name))
                 {
-                    ai.address = inputs[ai.name].ToString();
+                    input.address = ((AnalogInput)analogInputs[input.name]).address;
+                    input.scaleLow = ((AnalogInput)analogInputs[input.name]).scaleLow;
+                    input.scaleHigh = ((AnalogInput)analogInputs[input.name]).scaleHigh;
                 }
             }
 
-            foreach (var _do in DigitalOutputs)
+            foreach (var output in DigitalOutputs)
             {
-                if (outputs.ContainsKey(_do.name))
+                if (digitalOutputs.ContainsKey(output.name))
                 {
-                    _do.address = outputs[_do.name].ToString();
+                    output.address = ((DigitalOutput)digitalOutputs[output.name]).address;
                 }
             }
 
-            foreach (var ao in AnalogOutputs)
+            foreach (var output in AnalogOutputs)
             {
-                if (outputs.ContainsKey(ao.name))
+                if (analogOutputs.ContainsKey(output.name))
                 {
-                    ao.address = outputs[ao.name].ToString();
+                    output.address = ((AnalogOutput)analogOutputs[output.name]).address;
+                    output.scaleLow = ((AnalogOutput)analogOutputs[output.name]).scaleLow;
+                    output.scaleHigh = ((AnalogOutput)analogOutputs[output.name]).scaleHigh;
                 }
             }
             #endregion
@@ -174,7 +178,7 @@ namespace ConsoleApp1
                     if (FieldInputs[ai.address] != null)
                     {
                         double.TryParse(FieldInputs[ai.address].ToString(), out double res);
-                        ai.Value = res;
+                        ai.FieldValue = res;
                     }
                 }
             }
@@ -197,7 +201,7 @@ namespace ConsoleApp1
             {
                 if (o.isUpdated && o.address != null)
                 {
-                    fieldOutputs.Add(o.address, o.Value);
+                    fieldOutputs.Add(o.address, o.FieldValue);
                     o.isUpdated = false;
                 }
             }
@@ -262,7 +266,7 @@ namespace ConsoleApp1
             DigitalOutputs.First(s => s.name == "AUTO").Value = true;
             DigitalOutputs.First(s => s.name == "MANUAL").Value = false;
 
-            AnalogOutputs.First(s => s.name == "SPEED").Value = CurrentSpeed;
+            AnalogOutputs.First(s => s.name == "RUNNINGSPEED").Value = CurrentSpeed;
 
 
         }

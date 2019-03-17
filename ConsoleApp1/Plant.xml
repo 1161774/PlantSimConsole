@@ -2,51 +2,57 @@
 <plant>
   <drives>
     <pump name="PMP9601" maxFlowRate="10" rampUpTime="5" rampDownTime="2">
-      <input  name="Run"        address="E01R1S7_EPWW.Data.0" />
-      <input  name="Stop"       address="E01R1S7_EPWW.Data.1" />
-      <input  name="Reset"      address="E01R1S7_EPWW.Data.2" />
-      <output name="Available"  address="E01R1S1_EPWW.Data.0" />
-      <output name="Running"    address="E01R1S1_EPWW.Data.1" />
-      <output name="Fault"      address="E01R1S1_EPWW.Data.2" />
-      <output name="Reset"      address="E01R1S1_EPWW.Data.3" />
-      <output name="Start"      address="E01R1S1_EPWW.Data.4" />
-      <output name="Stop"       address="E01R1S1_EPWW.Data.5" />
-      <output name="Auto"       address="E01R1S1_EPWW.Data.6" />
-      <output name="Manual"     address="E01R1S1_EPWW.Data.7" />
+      <digitalInput   name="Run"        address="E01R1S7_EPWW.Data.0" />
+      <digitalInput   name="Stop"       address="E01R1S7_EPWW.Data.1" />
+      <digitalInput   name="Reset"      address="E01R1S7_EPWW.Data.2" />
+      <digitalOutput  name="Available"  address="E01R1S1_EPWW.Data.0" />
+      <digitalOutput  name="Running"    address="E01R1S1_EPWW.Data.1" />
+      <digitalOutput  name="Fault"      address="E01R1S1_EPWW.Data.2" />
+      <digitalOutput  name="Reset"      address="E01R1S1_EPWW.Data.3" />
+      <digitalOutput  name="Start"      address="E01R1S1_EPWW.Data.4" />
+      <digitalOutput  name="Stop"       address="E01R1S1_EPWW.Data.5" />
+      <digitalOutput  name="Auto"       address="E01R1S1_EPWW.Data.6" />
+      <digitalOutput  name="Manual"     address="E01R1S1_EPWW.Data.7" />
+      <analogInput    name="RunSpeed"     address="EPWW.TBA" scaleLow = "0" scaleHigh = "10000"/>
+      <analogOutput   name="RunningSpeed" address="EPWW.TBA" scaleLow = "0" scaleHigh = "10000"/>
     </pump>
-    <pump name="PMP9602" maxFlowRate="10" rampUpTime="5" rampDownTime="2">
-      <input  name="Run"        address="E01R1S7_EPWW.Data.4" />
-      <input  name="Stop"       address="E01R1S7_EPWW.Data.5" />
-      <input  name="Reset"      address="E01R1S7_EPWW.Data.6" />
-      <output name="Available"  address="E01R1S2_EPWW.Data.0" />
-      <output name="Running"    address="E01R1S2_EPWW.Data.1" />
-      <output name="Fault"      address="E01R1S2_EPWW.Data.2" />
-      <output name="Reset"      address="E01R1S2_EPWW.Data.3" />
-      <output name="Start"      address="E01R1S2_EPWW.Data.4" />
-      <output name="Stop"       address="E01R1S2_EPWW.Data.5" />
-      <output name="Auto"       address="E01R1S2_EPWW.Data.6" />
-      <output name="Manual"     address="E01R1S2_EPWW.Data.7" />
+<!--    <pump name="PMP9602" maxFlowRate="10" rampUpTime="5" rampDownTime="2">
+      <digitalInput   name="Run"        address="E01R1S7_EPWW.Data.4" />
+      <digitalInput   name="Stop"       address="E01R1S7_EPWW.Data.5" />
+      <digitalInput   name="Reset"      address="E01R1S7_EPWW.Data.6" />
+      <digitalOutput  name="Available"  address="E01R1S2_EPWW.Data.0" />
+      <digitalOutput  name="Running"    address="E01R1S2_EPWW.Data.1" />
+      <digitalOutput  name="Fault"      address="E01R1S2_EPWW.Data.2" />
+      <digitalOutput  name="Reset"      address="E01R1S2_EPWW.Data.3" />
+      <digitalOutput  name="Start"      address="E01R1S2_EPWW.Data.4" />
+      <digitalOutput  name="Stop"       address="E01R1S2_EPWW.Data.5" />
+      <digitalOutput  name="Auto"       address="E01R1S2_EPWW.Data.6" />
+      <digitalOutput  name="Manual"     address="E01R1S2_EPWW.Data.7" />
+      <analogInput    name="RunSP"      address="EPWW.TBA" />
+      <analogOutput   name="RunSpeed"   address="EPWW.TBA" />
     </pump>
     <pump name="PMP9603" maxFlowRate="10" rampUpTime="5" rampDownTime="2">
-      <input  name="Run"        address="E01R1S7_EPWW.Data.8" />
-      <input  name="Stop"       address="E01R1S7_EPWW.Data.9" />
-      <input  name="Reset"      address="E01R1S7_EPWW.Data.10" />
-      <output name="Available"  address="E01R1S3_EPWW.Data.0" />
-      <output name="Running"    address="E01R1S3_EPWW.Data.1" />
-      <output name="Fault"      address="E01R1S3_EPWW.Data.2" />
-      <output name="Reset"      address="E01R1S3_EPWW.Data.3" />
-      <output name="Start"      address="E01R1S3_EPWW.Data.4" />
-      <output name="Stop"       address="E01R1S3_EPWW.Data.5" />
-      <output name="Auto"       address="E01R1S3_EPWW.Data.6" />
-      <output name="Manual"     address="E01R1S3_EPWW.Data.7" />
-    </pump>
+      <digitalInput   name="Run"        address="E01R1S7_EPWW.Data.8" />
+      <digitalInput   name="Stop"       address="E01R1S7_EPWW.Data.9" />
+      <digitalInput   name="Reset"      address="E01R1S7_EPWW.Data.10" />
+      <digitalOutput  name="Available"  address="E01R1S3_EPWW.Data.0" />
+      <digitalOutput  name="Running"    address="E01R1S3_EPWW.Data.1" />
+      <digitalOutput  name="Fault"      address="E01R1S3_EPWW.Data.2" />
+      <digitalOutput  name="Reset"      address="E01R1S3_EPWW.Data.3" />
+      <digitalOutput  name="Start"      address="E01R1S3_EPWW.Data.4" />
+      <digitalOutput  name="Stop"       address="E01R1S3_EPWW.Data.5" />
+      <digitalOutput  name="Auto"       address="E01R1S3_EPWW.Data.6" />
+      <digitalOutput  name="Manual"     address="E01R1S3_EPWW.Data.7" />
+      <analogInput    name="RunSP"      address="EPWW.TBA" />
+      <analogOutput   name="RunSpeed"   address="EPWW.TBA" />
+    </pump> -->
   </drives>
   <sensors>
     <flowMeter name="FIT9601">
       <Source Name="PMP9601" />
       <Source Name="PMP9602" />
       <Source Name="PMP9603" />
-      <output Name="Rate"   address="E01R1S9_EPWW.Ch2Data" ScaleLow = "0" ScaleHigh = "10000" />
+      <Analogoutput Name="Rate"   address="E01R1S9_EPWW.Ch2Data" ScaleLow = "0" ScaleHigh = "10000" />
       
     </flowMeter>
   </sensors>

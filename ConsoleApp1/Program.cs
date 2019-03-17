@@ -44,23 +44,40 @@ namespace ConsoleApp1
             foreach(var pump in pumps)
             {
 
-                var pumpName = pump.Name.LocalName;
-
-                Hashtable inputs = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
-                var ins = pump.Elements("input").Select(x => x).ToList();
-                foreach(var i in ins)
+                Hashtable DigitalInputs = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
+                var digitalInputs = pump.Elements("digitalInput").Select(x => x).ToList();
+                foreach(var i in digitalInputs)
                 {
-                    inputs.Add(i.Attribute("name").Value, i.Attribute("address").Value);
+                    var input = new DigitalInput(i.Attribute("name").Value.ToString(), i.Attribute("address").Value.ToString());
+                    DigitalInputs.Add(i.Attribute("name").Value, (object)input);
                 }
 
-                Hashtable outputs = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
-                var outs = pump.Elements("output").Select(x => x).ToList();
-                foreach (var i in outs)
+                Hashtable DigitalOutputs = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
+                var digitalOutputs = pump.Elements("digitalOutput").Select(x => x).ToList();
+                foreach (var i in digitalOutputs)
                 {
-                    outputs.Add(i.Attribute("name").Value, i.Attribute("address").Value);
+                    var output = new DigitalOutput(i.Attribute("name").Value.ToString(), i.Attribute("address").Value.ToString());
+                    DigitalOutputs.Add(i.Attribute("name").Value, (object)output);
                 }
 
-                Pump p = new Pump(inputs, outputs);
+                Hashtable AnalogInputs = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
+                var analogInputs = pump.Elements("analogInput").Select(x => x).ToList();
+                foreach (var i in analogInputs)
+                {
+                    var input = new AnalogInput(i.Attribute("name").Value.ToString(), i.Attribute("address").Value.ToString(), i.Attribute("scaleLow").Value.ToString(), i.Attribute("scaleHigh").Value.ToString());
+                    AnalogInputs.Add(i.Attribute("name").Value, (object)input);
+                }
+
+                Hashtable AnalogOutputs = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
+                var analogOutputs = pump.Elements("analogOutput").Select(x => x).ToList();
+                foreach (var i in analogOutputs)
+                {
+                    var output = new AnalogOutput(i.Attribute("name").Value.ToString(), i.Attribute("address").Value.ToString(), i.Attribute("scaleLow").Value.ToString(), i.Attribute("scaleHigh").Value.ToString());
+                    AnalogOutputs.Add(i.Attribute("name").Value, (object)output);
+                }
+
+
+                Pump p = new Pump(DigitalInputs, DigitalOutputs, AnalogInputs, AnalogOutputs);
 
 
                 double maxFlowRate;
