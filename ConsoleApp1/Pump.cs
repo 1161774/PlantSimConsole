@@ -39,6 +39,7 @@ namespace ConsoleApp1
             new AnalogOutput("RunningSpeed", null, "0.0", "1.0")
         };
 
+        public string name = "";
 
         public double rampUpTime = 10;
         public double rampDownTime = 10;
@@ -86,27 +87,14 @@ namespace ConsoleApp1
 					currentSpeed = value;
 				}
 
-                //=1/(1+(EXP((-8*(E3-0.5)))))
-                //Use a logistics 'S' curve to map the pump speed to a flow rate. constant chosen arbitrarily.
-                double scaleFactor = 1 / (1 + Math.Pow(Math.E , (-8.0 * (currentSpeed - 0.5))));
-
-                //The curve doesn't really go completely to 0 or 1, so jump it there when it gets close.
-                if (scaleFactor < 0.05)
-                {
-                    scaleFactor = 0.0;
-                }
-                else if(scaleFactor > 0.95)
-                {
-                    scaleFactor = 1.0;
-                }
-
-                FlowRate = scaleFactor * MaxFlowRate;
+                FlowRate = currentSpeed * MaxFlowRate;
             }
         }
 
 
-        public Pump(Hashtable digitalInputs, Hashtable digitalOutputs, Hashtable analogInputs, Hashtable analogOutputs)
+        public Pump(string name, Hashtable digitalInputs, Hashtable digitalOutputs, Hashtable analogInputs, Hashtable analogOutputs)
         {
+            this.name = name;
 
             //Link IO to addresses
             #region IO Resolution

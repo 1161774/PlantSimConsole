@@ -20,6 +20,7 @@ namespace ConsoleApp1
         static Hashtable _FieldInputs = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
 
         static List<Pump> Pumps = new List<Pump>();
+        static List<FlowMeter> FlowMeters = new List<FlowMeter>();
 
         static void Main(string[] args)
         {
@@ -41,6 +42,12 @@ namespace ConsoleApp1
                                 .Select(x => x.Value)
                                 .ToList();
 
+            var flowMeters = doc.Root
+                                .Elements("sensors")
+                                .Elements("flowMeter")
+                                .Select(x => x)
+                                .ToList();
+
             foreach(var pump in pumps)
             {
 
@@ -48,7 +55,8 @@ namespace ConsoleApp1
                 var digitalInputs = pump.Elements("digitalInput").Select(x => x).ToList();
                 foreach(var i in digitalInputs)
                 {
-                    var input = new DigitalInput(i.Attribute("name").Value.ToString(), i.Attribute("address").Value.ToString());
+                    var input = new DigitalInput(i.Attribute("name").Value.ToString(), 
+                                                 i.Attribute("address").Value.ToString());
                     DigitalInputs.Add(i.Attribute("name").Value, (object)input);
                 }
 
@@ -56,7 +64,8 @@ namespace ConsoleApp1
                 var digitalOutputs = pump.Elements("digitalOutput").Select(x => x).ToList();
                 foreach (var i in digitalOutputs)
                 {
-                    var output = new DigitalOutput(i.Attribute("name").Value.ToString(), i.Attribute("address").Value.ToString());
+                    var output = new DigitalOutput(i.Attribute("name").Value.ToString(), 
+                                                   i.Attribute("address").Value.ToString());
                     DigitalOutputs.Add(i.Attribute("name").Value, (object)output);
                 }
 
@@ -64,7 +73,10 @@ namespace ConsoleApp1
                 var analogInputs = pump.Elements("analogInput").Select(x => x).ToList();
                 foreach (var i in analogInputs)
                 {
-                    var input = new AnalogInput(i.Attribute("name").Value.ToString(), i.Attribute("address").Value.ToString(), i.Attribute("scaleLow").Value.ToString(), i.Attribute("scaleHigh").Value.ToString());
+                    var input = new AnalogInput(i.Attribute("name").Value.ToString(), 
+                                                i.Attribute("address").Value.ToString(), 
+                                                i.Attribute("scaleLow").Value.ToString(), 
+                                                i.Attribute("scaleHigh").Value.ToString());
                     AnalogInputs.Add(i.Attribute("name").Value, (object)input);
                 }
 
@@ -72,12 +84,15 @@ namespace ConsoleApp1
                 var analogOutputs = pump.Elements("analogOutput").Select(x => x).ToList();
                 foreach (var i in analogOutputs)
                 {
-                    var output = new AnalogOutput(i.Attribute("name").Value.ToString(), i.Attribute("address").Value.ToString(), i.Attribute("scaleLow").Value.ToString(), i.Attribute("scaleHigh").Value.ToString());
+                    var output = new AnalogOutput(i.Attribute("name").Value.ToString(), 
+                                                  i.Attribute("address").Value.ToString(), 
+                                                  i.Attribute("scaleLow").Value.ToString(), 
+                                                  i.Attribute("scaleHigh").Value.ToString());
                     AnalogOutputs.Add(i.Attribute("name").Value, (object)output);
                 }
 
 
-                Pump p = new Pump(DigitalInputs, DigitalOutputs, AnalogInputs, AnalogOutputs);
+                Pump p = new Pump(pump.Attribute("name").Value, DigitalInputs, DigitalOutputs, AnalogInputs, AnalogOutputs);
 
 
                 double maxFlowRate;
@@ -94,6 +109,15 @@ namespace ConsoleApp1
 
                 Pumps.Add(p);
 
+            }
+
+            foreach(var flowMeter in flowMeters)
+            {
+                var sources = flowMeter.Elements("source").Attributes("name").Select(x => x.Value).ToList();
+
+                FlowMeter f = new FlowMeter(sources, new Hashtable());
+
+                FlowMeters.Add(f);
             }
 
 
@@ -202,24 +226,55 @@ namespace ConsoleApp1
                 pump.Run();
             }
 
+            foreach (var flowMeter in FlowMeters)
+            {
+                flowMeter.Run(Pumps);
+            }
+
+
+            Hashtable fieldOutputs = new Hashtable();
+
             //Update outputs
             foreach (var pump in Pumps)
             {
-                pump.UpdateOutputs(out Hashtable fieldOutputs);
+                pump.UpdateOutputs(out Hashtable outputs);
 
-                if (c != null && c.IsConnected)
+                foreach (DictionaryEntry o in outputs)
                 {
-                    foreach (DictionaryEntry o in fieldOutputs)
+                    if (!fieldOutputs.ContainsKey(o.Key))
                     {
-                        if (o.Key != null && o.Value != null)
-                        {
-                            Console.WriteLine("Poke: " + o.Key.ToString() + ": " + o.Value.ToString());
-                            string res = o.Value.ToString() == "True" ? "1" : "0";
-                            c.Poke(o.Key.ToString(), res, 1000);
-                        }
+                        fieldOutputs.Add(o.Key, o.Value);
                     }
                 }
             }
+
+            foreach (var flowMeter in FlowMeters)
+            {
+                flowMeter.UpdateOutputs(out Hashtable outputs);
+
+                foreach (DictionaryEntry o in outputs)
+                {
+                    if (!fieldOutputs.ContainsKey(o.Key))
+                    {
+                        fieldOutputs.Add(o.Key, o.Value);
+                    }
+                }
+            }
+
+
+            if (c != null && c.IsConnected)
+            {
+                foreach (DictionaryEntry o in fieldOutputs)
+                {
+                    if (o.Key != null && o.Value != null)
+                    {
+                        Console.WriteLine("Poke: " + o.Key.ToString() + ": " + o.Value.ToString());
+                        string res = o.Value.ToString() == "True" ? "1" : "0";
+                        c.Poke(o.Key.ToString(), res, 1000);
+                    }
+                }
+            }
+
         }
 
         private static void C_Advise(object sender, DdeAdviseEventArgs e)
