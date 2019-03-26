@@ -1,4 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
+<!--All values in SI units (litre, metre, second etc-->
 <plant>
   <drives>
     <pump name="PMP9601" maxFlowRate="10" rampUpTime="5" rampDownTime="2">
@@ -55,18 +56,15 @@
       <analogOutput name="Rate"   address="E01R1S9_EPWW.Ch2Data" scaleLow = "0" scaleHigh = "10000" />
     </flowMeter>
   </sensors>
-  <storage name="MyPond1">
-    <input  name="Run"        address="E01R1S7_EPWW.Data.4" />
-    <input  name="Stop"       address="E01R1S7_EPWW.Data.5" />
-    <input  name="Reset"      address="E01R1S7_EPWW.Data.6" />
-    <output name="Available"  address="E01R1S2_EPWW.Data.0" />
-    <output name="Running"    address="E01R1S2_EPWW.Data.1" />
-    <output name="Fault"      address="E01R1S2_EPWW.Data.2" />
-    <output name="Reset"    address="E01R1S2_EPWW.Data.3" />
-    <output name="Start"    address="E01R1S2_EPWW.Data.4" />
-    <output name="Stop"     address="E01R1S2_EPWW.Data.5" />
-    <output name="Auto"       address="E01R1S2_EPWW.Data.6" />
-    <output name="Manual"     address="E01R1S2_EPWW.Data.7" />
-  </storage>
-
+  <reservoirs>
+    <reservoir name="lagoon1" capacity="540000000" depth="1" shape="square">
+      <drain type="flowMeter" name="FIT9601"/>
+      <drain type="pump" name="PMP9601"/>
+      <supply type="flowMeter" name="FIT9601"/>
+    </reservoir>
+    <reservoir name="WaterTower" capacity="30000" depth="8" type="round">
+      <supply type="flowMeter" name="FIT9601"/>
+      <drain type="constant" rate="180" />
+    </reservoir>
+  </reservoirs>
 </plant>
